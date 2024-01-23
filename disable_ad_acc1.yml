@@ -1,0 +1,57 @@
+---
+- name: enable/disable AD accounts
+  hosts: windows
+  gather_facts: no
+    #become_user: Administrator
+  #vars_files:
+  #  - vars/ad_vars.yml
+
+  tasks:
+    - name: "Reading user information"
+      delegate_to: localhost
+      become: yes
+      become_method: sudo
+      become_user: awx # aap_controller
+      community.general.read_csv:
+        path: userdata.csv
+      register: users
+
+    - name: Disable AD accounts
+      win_domain_user:
+        name: "{{ item.user }}"
+              #  sam_account_name: "{{ item.sam_name }}"
+        groups: "{{item.security_Group}}"
+        enabled: no
+        state: query
+      loop: "{{ users.list }}"
+      register: disabled_acc
+
+    - name: Default OU is present & protected
+      microsoft.ad.ou:
+        name: Default_OU
+        path: DC=imss,DC=co,DC=in
+        state: present
+        protect_from_deletion: true
+
+        # - name: Moving disabled users to disabled_OU Organization unit
+        # community.windows.win_domain_user:
+        #name: "{{item.user}}"
+        #state: present
+        #password: int123$%^
+        # path: ou=default_OU,dc=imss,dc=co,dc=in
+        # loop: "{{ users.list }}"
+        #register: moving_users_to_ou
+      
+    - name: Move user object to different OU
+      microsoft.ad.user:
+        name: "{{ item.name }}"
+        path: OU=Default_OU,DC=imss,DC=co,DC=in
+        identity: '{{ item.sid }}'
+        state: present  
+      loop: "{{ disabled_acc.results }}"
+      register: moving_users_to_ou
+
+    - debug:
+        msg: "{{moving_users_to_ou}}"
+        #when: "'{{item.sec | length}}' >= '3'"
+        # loop: "{{ user_info }}"
