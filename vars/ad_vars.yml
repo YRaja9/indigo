@@ -1,0 +1,7 @@
+user_info:
+        - { user_name: 'user1', sec: ['sec_1'] }
+        - { user_name: 'user2', sec: ['sec_2'] }
+        - { user_name: 'user3', sec: ['sec_3'] }
+        - { user_name: 'user4', sec: ['sec_1','sec_2'] }
+        - { user_name: 'user5', sec: ['sec_3'] }
+

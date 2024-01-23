@@ -1,0 +1,6 @@
+---
+adou: OU=Ansible,DC=imss,DC=co,DC=in
+group: AnsibleADGroup
+alias: AnsAD
+email: ansad@imss.co.in
+
