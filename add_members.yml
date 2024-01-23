@@ -1,0 +1,23 @@
+--- 
+- name: Add Members to Security Group in Active Directory
+  hosts: windows
+  gather_facts: no
+  
+  tasks:
+    - name: Add Members to Security Group
+      win_shell: |
+         $groupName = "Ansible"
+         $User = "ansuser3"
+          Add-ADGroupMember -Identity $groupName -Members $User
+         $group = Get-ADGroup -Filter {Name -eq $groupName} -Properties Members
+         $group.Members
+      register: add_members_output
+    - name: Display Add Members Result
+      debug:
+        var: add_members_output.stdout_lines
+
+    - name: Save system information to a file
+      ansible.windows.win_copy:
+        content: |
+          Added users info: {{ add_members_output.stdout }}
+        dest: C:\tmp\added_users_group.txt
