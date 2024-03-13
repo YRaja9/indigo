@@ -1,0 +1,15 @@
+---
+- name: service Enable
+  hosts: windows
+  gather_facts: no
+  vars_files:
+    - vars/srvc_vars.yml
+
+  tasks:
+    - name: Enable a service
+      ansible.windows.win_service:
+        name: "{{item}}"
+        start_mode: auto
+        state: started
+      loop: "{{ service }}"
+
